@@ -111,8 +111,26 @@ public class MainActivity extends Activity {
 				// no action necessary
 				break;
 			case DragEvent.ACTION_DROP:
-				// handle the dragged view being dropped over a drop view
+
+				// get the original text view
 				TextView view = (TextView) event.getLocalState();
+
+				// <string name="option_1">Rotate</string>
+				// <string name="option_2">Move</string>
+				// <string name="option_3">Rotate Camera</string>
+				// <string name="option_4">Take Photo</string>
+				// create the new view
+
+				View newView;
+				if (view==option4) {
+					newView = buildPlainView(view);
+				}
+				else
+				{
+					newView = buildNumberSelectorView(view);
+				}
+				
+
 				TextView dropped = new TextView(MainActivity.this);
 				dropped.setText(view.getText());
 				int position = dropzone.pointToPosition((int) event.getX(),
@@ -120,8 +138,7 @@ public class MainActivity extends Activity {
 
 				// add to the adapter and notify
 				String text = view.getText().toString();
-				TextView newView = new TextView(MainActivity.this);
-				newView.setText(text);
+				
 				try {
 					adapter.insert(newView, position);
 				} catch (IndexOutOfBoundsException e) {
@@ -137,6 +154,18 @@ public class MainActivity extends Activity {
 				break;
 			}
 			return true;
+		}
+
+		private View buildNumberSelectorView(TextView view) {
+			TextView newView = new TextView(MainActivity.this);
+			newView.setText(view.getText()+"NUMBER");
+			return newView;
+		}
+
+		private View buildPlainView(TextView view) {
+			TextView newView = new TextView(MainActivity.this);
+			newView.setText(view.getText()+"PLAIN");
+			return newView;
 		}
 	}
 }
