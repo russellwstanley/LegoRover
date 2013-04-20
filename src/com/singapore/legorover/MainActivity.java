@@ -4,6 +4,7 @@ package com.singapore.legorover;
 import android.app.Activity;
 import android.content.ClipData;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -103,9 +104,22 @@ public class MainActivity extends Activity {
 				TextView view = (TextView) event.getLocalState();
 				TextView dropped = new TextView(MainActivity.this);
 				dropped.setText(view.getText());
+				int position = dropzone.pointToPosition((int)event.getX(), (int)event.getY());
 
 				//add to the adapter and notify
-				adapter.add(view.getText().toString());
+				String text = view.getText().toString();
+				try
+				{
+				
+				adapter.insert(text,position);
+				}
+				catch(IndexOutOfBoundsException e)
+				{
+					adapter.add(text);
+					Log.e(this.getClass().toString(),"Index out of bounds");
+					
+				}
+				
 				adapter.notifyDataSetChanged();
 				
 				
