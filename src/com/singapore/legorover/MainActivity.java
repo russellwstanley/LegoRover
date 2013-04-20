@@ -10,7 +10,10 @@ import android.view.View;
 import android.view.View.DragShadowBuilder;
 import android.view.View.OnDragListener;
 import android.view.View.OnTouchListener;
-import android.widget.LinearLayout;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 /**
@@ -24,7 +27,8 @@ public class MainActivity extends Activity {
 
 	//text views being dragged and dropped onto
 	private TextView option1, option2, option3;
-	private LinearLayout dropzone;
+	private ListView dropzone;
+	ArrayAdapter<String> adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +42,10 @@ public class MainActivity extends Activity {
 		option2 = (TextView)findViewById(R.id.option_2);
 		option3 = (TextView)findViewById(R.id.option_3);
 
-		dropzone = (LinearLayout)findViewById(R.id.dropzone);
-
+		dropzone = (ListView)findViewById(R.id.dropzone);
+		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
+		dropzone.setAdapter(adapter);
+		
 		//set touch listeners
 		option1.setOnTouchListener(new ChoiceTouchListener());
 		option2.setOnTouchListener(new ChoiceTouchListener());
@@ -95,13 +101,15 @@ public class MainActivity extends Activity {
 			case DragEvent.ACTION_DROP:
 				//handle the dragged view being dropped over a drop view
 				TextView view = (TextView) event.getLocalState();
-				//view dragged item is being dropped on
-				LinearLayout dropTarget = (LinearLayout) v;
 				TextView dropped = new TextView(MainActivity.this);
 				dropped.setText(view.getText());
+
+				//add to the adapter and notify
+				adapter.add(view.getText().toString());
+				adapter.notifyDataSetChanged();
 				
-				//update the text in the target view to reflect the data being dropped
-				dropTarget.addView(dropped);
+				
+				
 				break;
 			case DragEvent.ACTION_DRAG_ENDED:
 				//no action necessary
