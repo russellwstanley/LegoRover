@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.DragShadowBuilder;
@@ -14,7 +15,9 @@ import android.view.View.OnDragListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 
 /**
@@ -41,6 +44,7 @@ public class MainActivity extends Activity {
 	private TextView option1, option2, option3, option4;
 	private ListView dropzone;
 	MyArrayAdapter adapter;
+	private LayoutInflater inflater;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +69,9 @@ public class MainActivity extends Activity {
 
 		// set drag listeners
 		dropzone.setOnDragListener(new ChoiceDragListener());
+
+		inflater = (LayoutInflater) this
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	/**
@@ -122,23 +129,19 @@ public class MainActivity extends Activity {
 				// create the new view
 
 				View newView;
-				if (view==option4) {
-					newView = buildPlainView(view);
+				if (view == option4) {
+					newView = inflater.inflate(R.layout.plain_row, dropzone,
+							false);
+				} else {
+					newView = inflater.inflate(R.layout.number_row, dropzone,
+							false);
 				}
-				else
-				{
-					newView = buildNumberSelectorView(view);
-				}
-				
 
-				TextView dropped = new TextView(MainActivity.this);
-				dropped.setText(view.getText());
 				int position = dropzone.pointToPosition((int) event.getX(),
 						(int) event.getY());
 
-				// add to the adapter and notify
-				String text = view.getText().toString();
-				
+				// TODO set the text
+
 				try {
 					adapter.insert(newView, position);
 				} catch (IndexOutOfBoundsException e) {
@@ -155,17 +158,7 @@ public class MainActivity extends Activity {
 			}
 			return true;
 		}
-
-		private View buildNumberSelectorView(TextView view) {
-			TextView newView = new TextView(MainActivity.this);
-			newView.setText(view.getText()+"NUMBER");
-			return newView;
-		}
-
-		private View buildPlainView(TextView view) {
-			TextView newView = new TextView(MainActivity.this);
-			newView.setText(view.getText()+"PLAIN");
-			return newView;
-		}
 	}
+
+	
 }
