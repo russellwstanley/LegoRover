@@ -27,7 +27,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 	//text views being dragged and dropped onto
-	private TextView option1, option2, option3;
+	private TextView option1, option2, option3, option4;
 	private ListView dropzone;
 	ArrayAdapter<String> adapter;
 	
@@ -36,13 +36,12 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		//get both sets of text views
-
 		//views to drag
 		option1 = (TextView)findViewById(R.id.option_1);
 		option2 = (TextView)findViewById(R.id.option_2);
 		option3 = (TextView)findViewById(R.id.option_3);
-
+		option4 = (TextView)findViewById(R.id.option_4);
+		
 		dropzone = (ListView)findViewById(R.id.dropzone);
 		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 		dropzone.setAdapter(adapter);
@@ -51,6 +50,7 @@ public class MainActivity extends Activity {
 		option1.setOnTouchListener(new ChoiceTouchListener());
 		option2.setOnTouchListener(new ChoiceTouchListener());
 		option3.setOnTouchListener(new ChoiceTouchListener());
+		option4.setOnTouchListener(new ChoiceTouchListener());
 
 		//set drag listeners
 		dropzone.setOnDragListener(new ChoiceDragListener());
@@ -110,20 +110,14 @@ public class MainActivity extends Activity {
 				String text = view.getText().toString();
 				try
 				{
-				
 				adapter.insert(text,position);
 				}
 				catch(IndexOutOfBoundsException e)
 				{
 					adapter.add(text);
 					Log.e(this.getClass().toString(),"Index out of bounds");
-					
 				}
-				
 				adapter.notifyDataSetChanged();
-				
-				
-				
 				break;
 			case DragEvent.ACTION_DRAG_ENDED:
 				//no action necessary
