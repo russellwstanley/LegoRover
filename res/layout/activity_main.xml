@@ -79,6 +79,13 @@
             android:onClick="sendButton_Click"
             android:text="@string/buttonText" />
 
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connect" 
+            android:onClick="connect_Click"/>
+
     </LinearLayout>
 
 </LinearLayout>

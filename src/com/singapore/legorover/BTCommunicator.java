@@ -185,7 +185,7 @@ public class BTCommunicator extends Thread {
                 }
                 catch (Exception e1){
                     if (uiHandler == null)
-                        throw new IOException();
+                        throw new IOException(e1);
                     else
                         sendState(STATE_CONNECTERROR);
                     return;

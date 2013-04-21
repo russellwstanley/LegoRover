@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
+
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -41,7 +43,7 @@ import android.widget.Toast;
  * Sue Smith January 2013
  */
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements BTConnectable{
 
 	private enum ListItemType {
 		Move, Rotate, RotateCamera, TakePhoto
@@ -90,7 +92,7 @@ public class MainActivity extends Activity {
 
 	}
 
-	public class MyArrayAdapter extends ArrayAdapter<ListItem> {
+	public class MyArrayAdapter  extends ArrayAdapter<ListItem> {
 
 		public MyArrayAdapter(Context context) {
 			super(context, android.R.layout.simple_list_item_1);
@@ -131,12 +133,87 @@ public class MainActivity extends Activity {
 	private LayoutInflater inflater;
 	public static final int REQUEST_ENABLE_BLUETOOTH = 1;
 	public static final String ROVER_BLUETOOTH_NAME = "White";
-	private BluetoothSocket roverSocket;
-	private static final UUID SERIAL_PORT_SERVICE_CLASS_UUID = UUID
-			.fromString("00001101-0000-1000-8000-00805F9B34FB");
-	private BluetoothDevice roverDevice;
 
 	private BluetoothAdapter bluetoothAdapter;
+	BTCommunicator communicator;
+	
+	public void connect_Click(View view)
+	{
+		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		if (bluetoothAdapter == null) {
+			Toast toast = Toast.makeText(this, "bluetooth not supported", 1);
+			toast.show();
+			finish();
+		}
+		if (!bluetoothAdapter.isEnabled()) {
+			Intent enableBtIntent = new Intent(
+					BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(enableBtIntent, REQUEST_ENABLE_BLUETOOTH);
+		}
+		
+		communicator = new BTCommunicator(this, null, bluetoothAdapter, getResources());
+		
+
+		Set<BluetoothDevice> pairedDevices = bluetoothAdapter
+				.getBondedDevices();
+		// If there are paired devices
+		boolean pairedDeviceFound = false;
+		if (pairedDevices.size() > 0) {
+			// Loop through paired devices
+			for (BluetoothDevice device : pairedDevices) {
+				if (device.getName().equals(ROVER_BLUETOOTH_NAME)) {
+					Log.e(this.getClass().toString(), "Rover Already Paired!" );
+					pairedDeviceFound = true;
+					try
+					{
+						communicator.setMACAddress(device.getAddress());
+						communicator.createNXTconnection();
+					}
+					catch(Throwable e)
+					{
+						Log.e(this.getClass().toString(), e.getMessage());
+					}
+				}
+			}
+		}
+		
+		
+
+		receiver = new BroadcastReceiver() {
+
+			public void onReceive(Context context, Intent intent) {
+				String action = intent.getAction();
+				// When discovery finds a device
+				if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+					try {
+						// Get the BluetoothDevice object from the Intent
+						BluetoothDevice device = intent
+								.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+						Log.e(MainActivity.class.toString(),
+								device.getAddress());
+						Log.e(MainActivity.class.toString(), device.getName());
+						if (device.getName().equals(ROVER_BLUETOOTH_NAME)) {
+							bluetoothAdapter.cancelDiscovery();
+							communicator.setMACAddress(device.getAddress());
+							communicator.createNXTconnection();
+
+						}
+					} catch (Throwable e) {
+						Log.e(this.getClass().toString(), "Unable yo Connect "
+								+ e.getMessage());
+
+					}
+				}
+			}
+		};
+		// Register the BroadcastReceiver
+		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+		registerReceiver(receiver, filter); // Don't forget to unregister during
+											// onDestroy
+		if (!pairedDeviceFound) {
+			bluetoothAdapter.startDiscovery();
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -171,76 +248,7 @@ public class MainActivity extends Activity {
 		inflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		if (bluetoothAdapter == null) {
-			Toast toast = Toast.makeText(this, "bluetooth not supported", 1);
-			toast.show();
-			finish();
-		}
-		if (!bluetoothAdapter.isEnabled()) {
-			Intent enableBtIntent = new Intent(
-					BluetoothAdapter.ACTION_REQUEST_ENABLE);
-			startActivityForResult(enableBtIntent, REQUEST_ENABLE_BLUETOOTH);
-		}
-
-		Set<BluetoothDevice> pairedDevices = bluetoothAdapter
-				.getBondedDevices();
-		// If there are paired devices
-		if (pairedDevices.size() > 0) {
-			// Loop through paired devices
-			for (BluetoothDevice device : pairedDevices) {
-				if (device.getName().equals(ROVER_BLUETOOTH_NAME)) {
-					Log.e(this.getClass().toString(), "Rover Already Paired!" );
-					roverDevice = device;
-					try
-					{
-					roverSocket = device.createRfcommSocketToServiceRecord(SERIAL_PORT_SERVICE_CLASS_UUID);
-					roverSocket.connect();
-					}
-					catch(Throwable e)
-					{
-						Log.e(this.getClass().toString(), e.getMessage());
-					}
-				}
-			}
-		}
-
-		receiver = new BroadcastReceiver() {
-
-			public void onReceive(Context context, Intent intent) {
-				String action = intent.getAction();
-				// When discovery finds a device
-				if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-					try {
-						// Get the BluetoothDevice object from the Intent
-						BluetoothDevice device = intent
-								.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-						Log.e(MainActivity.class.toString(),
-								device.getAddress());
-						Log.e(MainActivity.class.toString(), device.getName());
-						if (device.getName().equals(ROVER_BLUETOOTH_NAME)) {
-							bluetoothAdapter.cancelDiscovery();
-							roverDevice = device;
-							roverSocket = device
-									.createRfcommSocketToServiceRecord(SERIAL_PORT_SERVICE_CLASS_UUID);
-							roverSocket.connect();
-
-						}
-					} catch (Throwable e) {
-						Log.e(this.getClass().toString(), "Unable yo Connect "
-								+ e.getMessage());
-
-					}
-				}
-			}
-		};
-		// Register the BroadcastReceiver
-		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-		registerReceiver(receiver, filter); // Don't forget to unregister during
-											// onDestroy
-		if (roverDevice == null) {
-			bluetoothAdapter.startDiscovery();
-		}
+		
 	}
 
 	/**
@@ -316,10 +324,7 @@ public class MainActivity extends Activity {
 	}
 
 	public void sendButton_Click(View view) {
-		if (roverDevice == null) {
-			Log.e(this.getClass().toString(), "Rover nor found ");
-			return;
-		}
+		
 		for (int i = 0; i < dropzone.getCount(); i++) {
 
 			ListItem item = (ListItem) dropzone.getItemAtPosition(i);
@@ -328,20 +333,18 @@ public class MainActivity extends Activity {
 			Log.e(this.getClass().toString(), "Action: " + action + " Value: "
 					+ item.getValue());
 			String msg = "hello";
-			byte[] buffer = new byte[1024];
 			try {
-				if (roverSocket.isConnected()) {
-
-					roverSocket.getOutputStream().write(msg.getBytes());
-				} else {
-					Log.e(this.getClass().toString(),
-							"rover socket is not connected");
-				}
-				//
+				communicator.sendMessage(msg.getBytes());
 			} catch (IOException e) {
-				Log.e(this.getClass().toString(), e.getMessage());
+				Log.e(this.getClass().toString(), "Unable to send msg to NXT");
 			}
 		}
+	}
+
+	@Override
+	public boolean isPairing() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
