@@ -9,5 +9,7 @@
     <string name="option_3">Rotate Camera</string>
     <string name="option_4">Take Photo</string>
     <string name="buttonText">Send To Rover</string>
+    <string name="list_option_button">X</string>
+    
 
 </resources>

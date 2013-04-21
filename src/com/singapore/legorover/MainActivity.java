@@ -15,6 +15,7 @@ import android.view.View.OnDragListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
@@ -96,6 +97,12 @@ public class MainActivity extends Activity {
 			}
 		}
 	}
+	
+	public void listButtonClick(View view)
+	{
+		Button b = (Button)view;
+		b.setText("Click");
+	}
 
 	/**
 	 * DragListener will handle dragged views being dropped on the drop area -
@@ -136,7 +143,9 @@ public class MainActivity extends Activity {
 					newView = inflater.inflate(R.layout.number_row, dropzone,
 							false);
 				}
-
+				//listen for clicks on the button
+				
+				
 				int position = dropzone.pointToPosition((int) event.getX(),
 						(int) event.getY());
 
@@ -146,7 +155,6 @@ public class MainActivity extends Activity {
 					adapter.insert(newView, position);
 				} catch (IndexOutOfBoundsException e) {
 					adapter.add(newView);
-					Log.e(this.getClass().toString(), "Index out of bounds");
 				}
 				adapter.notifyDataSetChanged();
 				break;
