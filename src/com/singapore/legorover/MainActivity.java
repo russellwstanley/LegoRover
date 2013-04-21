@@ -1,9 +1,19 @@
 /*INSERT YOUR PACKAGE NAME*/
 package com.singapore.legorover;
 
+import java.io.IOException;
+import java.util.Set;
+import java.util.UUID;
+
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -23,6 +33,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Android SDK Tutorial - Drag and Drop Mobiletuts+
@@ -35,33 +46,27 @@ public class MainActivity extends Activity {
 	private enum ListItemType {
 		Move, Rotate, RotateCamera, TakePhoto
 	}
-	
-	
-	
-	//TODO consider subclassing rather than enums
-	private class ListItem{
-		
+
+	// TODO consider subclassing rather than enums
+	private class ListItem {
+
 		private ListItemType type;
 		private CharSequence value;
-		
-		public ListItem(ListItemType type)
-		{
+
+		public ListItem(ListItemType type) {
 			this.type = type;
 		}
-		
-		public ListItemType getType()
-		{
+
+		public ListItemType getType() {
 			return type;
 		}
-		
-		public CharSequence getValue()
-		{
+
+		public CharSequence getValue() {
 			return value;
 		}
-		
-		public TextWatcher getWatcher()
-		{
-			return new TextWatcher(){
+
+		public TextWatcher getWatcher() {
+			return new TextWatcher() {
 
 				@Override
 				public void afterTextChanged(Editable arg0) {
@@ -79,11 +84,10 @@ public class MainActivity extends Activity {
 						int arg2, int arg3) {
 					value = arg0;
 				}
-				
+
 			};
 		}
-		
-		
+
 	}
 
 	public class MyArrayAdapter extends ArrayAdapter<ListItem> {
@@ -107,20 +111,32 @@ public class MainActivity extends Activity {
 			TextView text = (TextView) layout
 					.findViewById(R.id.list_option_text);
 			text.setText(item.getType().toString());
-			EditText edit = (EditText)layout.findViewById(R.id.editText1);
-			if(edit!=null)
-			{
+			EditText edit = (EditText) layout.findViewById(R.id.editText1);
+			if (edit != null) {
 				edit.addTextChangedListener(item.getWatcher());
 			}
 			return layout;
 		}
 	}
 
+	private static final int REQUEST_ENABLE_BT = 0;
+
+	// Create a BroadcastReceiver for ACTION_FOUND
+	private BroadcastReceiver receiver;
+
 	// text views being dragged and dropped onto
 	private TextView option1, option2, option3, option4;
 	private ListView dropzone;
 	MyArrayAdapter adapter;
 	private LayoutInflater inflater;
+	public static final int REQUEST_ENABLE_BLUETOOTH = 1;
+	public static final String ROVER_BLUETOOTH_NAME = "White";
+	private BluetoothSocket roverSocket;
+	private static final UUID SERIAL_PORT_SERVICE_CLASS_UUID = UUID
+			.fromString("00001101-0000-1000-8000-00805F9B34FB");
+	private BluetoothDevice roverDevice;
+
+	private BluetoothAdapter bluetoothAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +170,77 @@ public class MainActivity extends Activity {
 
 		inflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		if (bluetoothAdapter == null) {
+			Toast toast = Toast.makeText(this, "bluetooth not supported", 1);
+			toast.show();
+			finish();
+		}
+		if (!bluetoothAdapter.isEnabled()) {
+			Intent enableBtIntent = new Intent(
+					BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			startActivityForResult(enableBtIntent, REQUEST_ENABLE_BLUETOOTH);
+		}
+
+		Set<BluetoothDevice> pairedDevices = bluetoothAdapter
+				.getBondedDevices();
+		// If there are paired devices
+		if (pairedDevices.size() > 0) {
+			// Loop through paired devices
+			for (BluetoothDevice device : pairedDevices) {
+				if (device.getName().equals(ROVER_BLUETOOTH_NAME)) {
+					Log.e(this.getClass().toString(), "Rover Already Paired!" );
+					roverDevice = device;
+					try
+					{
+					roverSocket = device.createRfcommSocketToServiceRecord(SERIAL_PORT_SERVICE_CLASS_UUID);
+					roverSocket.connect();
+					}
+					catch(Throwable e)
+					{
+						Log.e(this.getClass().toString(), e.getMessage());
+					}
+				}
+			}
+		}
+
+		receiver = new BroadcastReceiver() {
+
+			public void onReceive(Context context, Intent intent) {
+				String action = intent.getAction();
+				// When discovery finds a device
+				if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+					try {
+						// Get the BluetoothDevice object from the Intent
+						BluetoothDevice device = intent
+								.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+						Log.e(MainActivity.class.toString(),
+								device.getAddress());
+						Log.e(MainActivity.class.toString(), device.getName());
+						if (device.getName().equals(ROVER_BLUETOOTH_NAME)) {
+							bluetoothAdapter.cancelDiscovery();
+							roverDevice = device;
+							roverSocket = device
+									.createRfcommSocketToServiceRecord(SERIAL_PORT_SERVICE_CLASS_UUID);
+							roverSocket.connect();
+
+						}
+					} catch (Throwable e) {
+						Log.e(this.getClass().toString(), "Unable yo Connect "
+								+ e.getMessage());
+
+					}
+				}
+			}
+		};
+		// Register the BroadcastReceiver
+		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+		registerReceiver(receiver, filter); // Don't forget to unregister during
+											// onDestroy
+		if (roverDevice == null) {
+			bluetoothAdapter.startDiscovery();
+		}
 	}
 
 	/**
@@ -229,12 +316,31 @@ public class MainActivity extends Activity {
 	}
 
 	public void sendButton_Click(View view) {
+		if (roverDevice == null) {
+			Log.e(this.getClass().toString(), "Rover nor found ");
+			return;
+		}
 		for (int i = 0; i < dropzone.getCount(); i++) {
 
-			ListItem item = (ListItem)dropzone.getItemAtPosition(i);
+			ListItem item = (ListItem) dropzone.getItemAtPosition(i);
 			String action = item.getType().toString();
 			String value = "";
-			Log.e(this.getClass().toString(), "Action: " + action + " Value: "+ item.getValue());
+			Log.e(this.getClass().toString(), "Action: " + action + " Value: "
+					+ item.getValue());
+			String msg = "hello";
+			byte[] buffer = new byte[1024];
+			try {
+				if (roverSocket.isConnected()) {
+
+					roverSocket.getOutputStream().write(msg.getBytes());
+				} else {
+					Log.e(this.getClass().toString(),
+							"rover socket is not connected");
+				}
+				//
+			} catch (IOException e) {
+				Log.e(this.getClass().toString(), e.getMessage());
+			}
 		}
 	}
 
