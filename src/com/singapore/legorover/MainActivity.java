@@ -30,7 +30,7 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 	
 	private enum ListItemType {
-		Plain, Numbered
+		Move, Rotate, RotateCamera, TakePhoto
 	}
 
 	public class MyArrayAdapter extends ArrayAdapter<ListItemType> {
@@ -43,14 +43,14 @@ public class MainActivity extends Activity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LinearLayout layout;
 			ListItemType type = getItem(position);
-			if(type==ListItemType.Numbered)
+			if(type==ListItemType.TakePhoto)
 			{
-				 layout =  (LinearLayout)inflater.inflate(R.layout.number_row, parent,
+				 layout =  (LinearLayout)inflater.inflate(R.layout.plain_row, parent,
 						false);
 			}
 			else
 			{
-			 layout =  (LinearLayout)inflater.inflate(R.layout.plain_row, parent,
+			 layout =  (LinearLayout)inflater.inflate(R.layout.number_row, parent,
 					false);
 			}
 			//TODO this is s**t look into subclassing layout
@@ -77,6 +77,12 @@ public class MainActivity extends Activity {
 		option2 = (TextView) findViewById(R.id.option_2);
 		option3 = (TextView) findViewById(R.id.option_3);
 		option4 = (TextView) findViewById(R.id.option_4);
+		
+		//tag the options
+		option1.setTag(ListItemType.Rotate);
+		option2.setTag(ListItemType.Move);
+		option3.setTag(ListItemType.RotateCamera);
+		option4.setTag(ListItemType.TakePhoto);
 
 		dropzone = (ListView) findViewById(R.id.dropzone);
 		adapter = new MyArrayAdapter(this);
@@ -148,27 +154,9 @@ public class MainActivity extends Activity {
 
 				// get the original text view
 				TextView view = (TextView) event.getLocalState();
-
-				// <string name="option_1">Rotate</string>
-				// <string name="option_2">Move</string>
-				// <string name="option_3">Rotate Camera</string>
-				// <string name="option_4">Take Photo</string>
-				// create the new view
-
-				ListItemType type;
-				if (view == option4) {
-					type = ListItemType.Plain;
-				} else {
-					type = ListItemType.Numbered;
-				}
-				//listen for clicks on the button
-				
-				
 				int position = dropzone.pointToPosition((int) event.getX(),
 						(int) event.getY());
-
-				// TODO set the text
-
+				ListItemType type = (ListItemType)view.getTag();
 				try {
 					adapter.insert(type, position);
 				} catch (IndexOutOfBoundsException e) {
