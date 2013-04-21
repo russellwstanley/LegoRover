@@ -16,6 +16,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
@@ -28,7 +29,7 @@ import android.widget.TextView;
  */
 
 public class MainActivity extends Activity {
-	
+
 	private enum ListItemType {
 		Move, Rotate, RotateCamera, TakePhoto
 	}
@@ -43,18 +44,16 @@ public class MainActivity extends Activity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LinearLayout layout;
 			ListItemType type = getItem(position);
-			if(type==ListItemType.TakePhoto)
-			{
-				 layout =  (LinearLayout)inflater.inflate(R.layout.plain_row, parent,
-						false);
+			if (type == ListItemType.TakePhoto) {
+				layout = (LinearLayout) inflater.inflate(R.layout.plain_row,
+						parent, false);
+			} else {
+				layout = (LinearLayout) inflater.inflate(R.layout.number_row,
+						parent, false);
 			}
-			else
-			{
-			 layout =  (LinearLayout)inflater.inflate(R.layout.number_row, parent,
-					false);
-			}
-			//TODO this is s**t look into subclassing layout
-			TextView text = (TextView)layout.findViewById(R.id.list_option_text);
+			// TODO this is s**t look into subclassing layout
+			TextView text = (TextView) layout
+					.findViewById(R.id.list_option_text);
 			text.setText(type.toString());
 			layout.setTag(type);
 			return layout;
@@ -77,8 +76,8 @@ public class MainActivity extends Activity {
 		option2 = (TextView) findViewById(R.id.option_2);
 		option3 = (TextView) findViewById(R.id.option_3);
 		option4 = (TextView) findViewById(R.id.option_4);
-		
-		//tag the options
+
+		// tag the options
 		option1.setTag(ListItemType.Rotate);
 		option2.setTag(ListItemType.Move);
 		option3.setTag(ListItemType.RotateCamera);
@@ -123,10 +122,9 @@ public class MainActivity extends Activity {
 			}
 		}
 	}
-	
-	public void listButtonClick(View view)
-	{
-		Button b = (Button)view;
+
+	public void listButtonClick(View view) {
+		Button b = (Button) view;
 		b.setText("Click");
 	}
 
@@ -156,7 +154,7 @@ public class MainActivity extends Activity {
 				TextView view = (TextView) event.getLocalState();
 				int position = dropzone.pointToPosition((int) event.getX(),
 						(int) event.getY());
-				ListItemType type = (ListItemType)view.getTag();
+				ListItemType type = (ListItemType) view.getTag();
 				try {
 					adapter.insert(type, position);
 				} catch (IndexOutOfBoundsException e) {
@@ -174,5 +172,18 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	
+	public void sendButton_Click(View view) {
+		for (int i = 0; i < dropzone.getCount(); i++) {
+
+			View item = (View)dropzone.getItemAtPosition(i);
+			String action = item.getTag().toString();
+			EditText edit = (EditText)item.findViewById(R.id.editText1);
+			String value = "";
+			if(edit!=null)
+			{
+			Log.e(this.getClass().toString(), "Action: " + action + " Value: "+ value);
+			}
+		}
+	}
+
 }
