@@ -28,8 +28,12 @@ import android.widget.TextView;
  */
 
 public class MainActivity extends Activity {
+	
+	private enum ListItemType {
+		Plain, Numbered
+	}
 
-	public class MyArrayAdapter extends ArrayAdapter<View> {
+	public class MyArrayAdapter extends ArrayAdapter<ListItemType> {
 
 		public MyArrayAdapter(Context context) {
 			super(context, android.R.layout.simple_list_item_1);
@@ -37,7 +41,23 @@ public class MainActivity extends Activity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			return super.getItem(position);
+			LinearLayout layout;
+			ListItemType type = getItem(position);
+			if(type==ListItemType.Numbered)
+			{
+				 layout =  (LinearLayout)inflater.inflate(R.layout.number_row, parent,
+						false);
+			}
+			else
+			{
+			 layout =  (LinearLayout)inflater.inflate(R.layout.plain_row, parent,
+					false);
+			}
+			//TODO this is s**t look into subclassing layout
+			TextView text = (TextView)layout.findViewById(R.id.list_option_text);
+			text.setText(type.toString());
+			layout.setTag(type);
+			return layout;
 		}
 	}
 
@@ -135,13 +155,11 @@ public class MainActivity extends Activity {
 				// <string name="option_4">Take Photo</string>
 				// create the new view
 
-				View newView;
+				ListItemType type;
 				if (view == option4) {
-					newView = inflater.inflate(R.layout.plain_row, dropzone,
-							false);
+					type = ListItemType.Plain;
 				} else {
-					newView = inflater.inflate(R.layout.number_row, dropzone,
-							false);
+					type = ListItemType.Numbered;
 				}
 				//listen for clicks on the button
 				
@@ -152,9 +170,9 @@ public class MainActivity extends Activity {
 				// TODO set the text
 
 				try {
-					adapter.insert(newView, position);
+					adapter.insert(type, position);
 				} catch (IndexOutOfBoundsException e) {
-					adapter.add(newView);
+					adapter.add(type);
 				}
 				adapter.notifyDataSetChanged();
 				break;
