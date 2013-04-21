@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
@@ -33,8 +35,58 @@ public class MainActivity extends Activity {
 	private enum ListItemType {
 		Move, Rotate, RotateCamera, TakePhoto
 	}
+	
+	
+	
+	//TODO consider subclassing rather than enums
+	private class ListItem{
+		
+		private ListItemType type;
+		private CharSequence value;
+		
+		public ListItem(ListItemType type)
+		{
+			this.type = type;
+		}
+		
+		public ListItemType getType()
+		{
+			return type;
+		}
+		
+		public CharSequence getValue()
+		{
+			return value;
+		}
+		
+		public TextWatcher getWatcher()
+		{
+			return new TextWatcher(){
 
-	public class MyArrayAdapter extends ArrayAdapter<ListItemType> {
+				@Override
+				public void afterTextChanged(Editable arg0) {
+					// TODO Auto-generated method stub
+				}
+
+				@Override
+				public void beforeTextChanged(CharSequence arg0, int arg1,
+						int arg2, int arg3) {
+					// TODO Auto-generated method stub
+				}
+
+				@Override
+				public void onTextChanged(CharSequence arg0, int arg1,
+						int arg2, int arg3) {
+					value = arg0;
+				}
+				
+			};
+		}
+		
+		
+	}
+
+	public class MyArrayAdapter extends ArrayAdapter<ListItem> {
 
 		public MyArrayAdapter(Context context) {
 			super(context, android.R.layout.simple_list_item_1);
@@ -43,8 +95,8 @@ public class MainActivity extends Activity {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LinearLayout layout;
-			ListItemType type = getItem(position);
-			if (type == ListItemType.TakePhoto) {
+			ListItem item = getItem(position);
+			if (item.getType() == ListItemType.TakePhoto) {
 				layout = (LinearLayout) inflater.inflate(R.layout.plain_row,
 						parent, false);
 			} else {
@@ -54,8 +106,12 @@ public class MainActivity extends Activity {
 			// TODO this is s**t look into subclassing layout
 			TextView text = (TextView) layout
 					.findViewById(R.id.list_option_text);
-			text.setText(type.toString());
-			layout.setTag(type);
+			text.setText(item.getType().toString());
+			EditText edit = (EditText)layout.findViewById(R.id.editText1);
+			if(edit!=null)
+			{
+				edit.addTextChangedListener(item.getWatcher());
+			}
 			return layout;
 		}
 	}
@@ -154,11 +210,11 @@ public class MainActivity extends Activity {
 				TextView view = (TextView) event.getLocalState();
 				int position = dropzone.pointToPosition((int) event.getX(),
 						(int) event.getY());
-				ListItemType type = (ListItemType) view.getTag();
+				ListItem item = new ListItem((ListItemType) view.getTag());
 				try {
-					adapter.insert(type, position);
+					adapter.insert(item, position);
 				} catch (IndexOutOfBoundsException e) {
-					adapter.add(type);
+					adapter.add(item);
 				}
 				adapter.notifyDataSetChanged();
 				break;
@@ -175,14 +231,10 @@ public class MainActivity extends Activity {
 	public void sendButton_Click(View view) {
 		for (int i = 0; i < dropzone.getCount(); i++) {
 
-			View item = (View)dropzone.getItemAtPosition(i);
-			String action = item.getTag().toString();
-			EditText edit = (EditText)item.findViewById(R.id.editText1);
+			ListItem item = (ListItem)dropzone.getItemAtPosition(i);
+			String action = item.getType().toString();
 			String value = "";
-			if(edit!=null)
-			{
-			Log.e(this.getClass().toString(), "Action: " + action + " Value: "+ value);
-			}
+			Log.e(this.getClass().toString(), "Action: " + action + " Value: "+ item.getValue());
 		}
 	}
 
