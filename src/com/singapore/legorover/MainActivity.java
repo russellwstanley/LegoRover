@@ -2,6 +2,7 @@
 package com.singapore.legorover;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 
 import android.app.Activity;
@@ -291,23 +292,62 @@ public class MainActivity extends Activity implements BTConnectable{
 	}
 
 	public void sendButton_Click(View view) {
-		communicator.changeMotorSpeed(1, 50);
+		//communicator.changeMotorSpeed(1, 50);
+		//TODO
 		
 		
-//		for (int i = 0; i < dropzone.getCount(); i++) {
-//
-//			ListItem item = (ListItem) dropzone.getItemAtPosition(i);
-//			String action = item.getType().toString();
-//			String value = "";
-//			Log.e(this.getClass().toString(), "Action: " + action + " Value: "
-//					+ item.getValue());
+		for (int i = 0; i < dropzone.getCount(); i++) {
+
+			ListItem item = (ListItem) dropzone.getItemAtPosition(i);
+			String action = item.getType().toString();
+			String value = "";
+			Log.e(this.getClass().toString(), "Action: " + action + " Value: "
+					+ item.getValue());
+			
+			
 //			String msg = "hello";
 //			try {
 //				communicator.sendMessage(msg.getBytes());
 //			} catch (IOException e) {
 //				Log.e(this.getClass().toString(), "Unable to send msg to NXT");
 //			}
+		}
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		adapter.clear();
+		adapter.notifyDataSetChanged();
+//		final ArrayList<ListItem> tempItems = new ArrayList<ListItem>();
+//		for(int i = 0; i < adapter.getCount() ; i++)
+//		{
+//			tempItems.add(adapter.getItem(i));
 //		}
+//		Thread removeThread = new Thread(new Runnable(){
+//			
+//
+//			@Override
+//			public void run() {
+//				for(ListItem item : tempItems)
+//				{
+//					adapter.remove(item);
+//					adapter.notifyDataSetChanged();
+//					try {
+//						Thread.sleep(500);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//				
+//			}
+//			
+//		});
+//		removeThread.start();
+		
+		
 	}
 
 	@Override
