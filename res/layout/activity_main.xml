@@ -64,7 +64,7 @@
         android:layout_height="fill_parent"
         android:layout_width="fill_parent"
         android:layout_weight="0.56"
-        android:background="@layout/dropzone_background"
+        android:background="@drawable/mars"
         android:orientation="vertical"
         android:padding="10dp"
         android:paddingLeft="50dp"
