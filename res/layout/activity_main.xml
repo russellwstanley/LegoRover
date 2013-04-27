@@ -1,18 +1,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@layout/background"
     android:orientation="vertical" >
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingBottom="10dp"
-        android:text="@string/intro" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
+        android:background="@layout/background"
         android:orientation="horizontal" >
 
         <TextView
@@ -20,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_margin="5dp"
-            android:background="@drawable/option"
+            android:background="@layout/option"
             android:gravity="center"
             android:text="@string/option_1"
             android:textStyle="bold" />
@@ -30,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_margin="5dp"
-            android:background="@drawable/option"
+            android:background="@layout/option"
             android:gravity="center"
             android:text="@string/option_2"
             android:textStyle="bold" />
@@ -40,7 +35,7 @@
             android:layout_width="74dp"
             android:layout_height="fill_parent"
             android:layout_margin="5dp"
-            android:background="@drawable/option"
+            android:background="@layout/option"
             android:gravity="center"
             android:text="@string/option_3"
             android:textStyle="bold" />
@@ -50,21 +45,31 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_margin="5dp"
-            android:background="@drawable/option"
+            android:background="@layout/option"
             android:gravity="center"
             android:text="@string/option_4"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/dropzone"
+    <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.90"
+        android:gravity="center"
+        android:paddingBottom="10dp"
+        android:text="@string/intro"
+        android:textColor="#FFFFFF" />
+
+    <ListView
+        android:id="@+id/dropzone"
+        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
+        android:layout_weight="0.56"
+        android:background="@layout/dropzone_background"
         android:orientation="vertical"
         android:padding="10dp"
         android:paddingLeft="50dp"
-        android:paddingRight="50dp" >
+        android:paddingRight="50dp"
+        android:layout_margin="10dp" >
     </ListView>
 
     <LinearLayout
@@ -83,10 +88,8 @@
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Connect" 
-            android:onClick="connect_Click"/>
-
+            android:onClick="connect_Click"
+            android:text="Connect" />
     </LinearLayout>
 
 </LinearLayout>
-

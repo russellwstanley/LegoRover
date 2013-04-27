@@ -3,14 +3,10 @@ package com.singapore.legorover;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.UUID;
-
-
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.Context;
@@ -33,7 +29,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -199,7 +194,7 @@ public class MainActivity extends Activity implements BTConnectable{
 
 						}
 					} catch (Throwable e) {
-						Log.e(this.getClass().toString(), "Unable yo Connect "
+						Log.e(this.getClass().toString(), "Unable to Connect "
 								+ e.getMessage());
 
 					}
