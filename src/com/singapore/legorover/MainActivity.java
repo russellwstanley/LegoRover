@@ -31,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.os.Handler;
 
 /**
  * Android SDK Tutorial - Drag and Drop Mobiletuts+
@@ -162,7 +163,6 @@ public class MainActivity extends Activity implements BTConnectable{
 					try
 					{
 						communicator.setMACAddress(device.getAddress());
-						communicator.createNXTconnection();
 					}
 					catch(Throwable e)
 					{
@@ -171,44 +171,16 @@ public class MainActivity extends Activity implements BTConnectable{
 				}
 			}
 		}
-		
-		
-
-		receiver = new BroadcastReceiver() {
-
-			public void onReceive(Context context, Intent intent) {
-				String action = intent.getAction();
-				// When discovery finds a device
-				if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-					try {
-						// Get the BluetoothDevice object from the Intent
-						BluetoothDevice device = intent
-								.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-						Log.e(MainActivity.class.toString(),
-								device.getAddress());
-						Log.e(MainActivity.class.toString(), device.getName());
-						if (device.getName().equals(ROVER_BLUETOOTH_NAME)) {
-							bluetoothAdapter.cancelDiscovery();
-							communicator.setMACAddress(device.getAddress());
-							communicator.createNXTconnection();
-
-						}
-					} catch (Throwable e) {
-						Log.e(this.getClass().toString(), "Unable to Connect "
-								+ e.getMessage());
-
-					}
-				}
-			}
-		};
-		// Register the BroadcastReceiver
-		IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-		registerReceiver(receiver, filter); // Don't forget to unregister during
-											// onDestroy
-		if (!pairedDeviceFound) {
-			bluetoothAdapter.startDiscovery();
+		if(!pairedDeviceFound)
+		{
+			Toast.makeText(this, "no paired device found", 2);
 		}
+		Thread nxtThread = new Thread(communicator); 
+		nxtThread.start();
+
 	}
+	
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -319,21 +291,23 @@ public class MainActivity extends Activity implements BTConnectable{
 	}
 
 	public void sendButton_Click(View view) {
+		communicator.changeMotorSpeed(1, 50);
 		
-		for (int i = 0; i < dropzone.getCount(); i++) {
-
-			ListItem item = (ListItem) dropzone.getItemAtPosition(i);
-			String action = item.getType().toString();
-			String value = "";
-			Log.e(this.getClass().toString(), "Action: " + action + " Value: "
-					+ item.getValue());
-			String msg = "hello";
-			try {
-				communicator.sendMessage(msg.getBytes());
-			} catch (IOException e) {
-				Log.e(this.getClass().toString(), "Unable to send msg to NXT");
-			}
-		}
+		
+//		for (int i = 0; i < dropzone.getCount(); i++) {
+//
+//			ListItem item = (ListItem) dropzone.getItemAtPosition(i);
+//			String action = item.getType().toString();
+//			String value = "";
+//			Log.e(this.getClass().toString(), "Action: " + action + " Value: "
+//					+ item.getValue());
+//			String msg = "hello";
+//			try {
+//				communicator.sendMessage(msg.getBytes());
+//			} catch (IOException e) {
+//				Log.e(this.getClass().toString(), "Unable to send msg to NXT");
+//			}
+//		}
 	}
 
 	@Override

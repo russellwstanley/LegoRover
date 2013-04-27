@@ -1,20 +1,8 @@
 /**
- *   Copyright 2010, 2011, 2012 Guenther Hoelzl, Shawn Brown
+ *   Copyright 2010, 2011, 2012 Guenther Hoelzl, Shawn Brown ...and Russell
  *
- *   This file is part of MINDdroid.
- *
- *   MINDdroid is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   MINDdroid is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with MINDdroid.  If not, see <http://www.gnu.org/licenses/>.
+ *   This file was originally part is part of MINDdroid.
+ *   Modified by Russell during the Nasa Space Apps Challenge!
 **/
 
 package com.singapore.legorover;
@@ -39,7 +27,7 @@ import java.util.UUID;
  * Objects of this class can either be run as standalone thread or controlled
  * by the owners, i.e. calling the send/recive methods by themselves.
  */
-public class BTCommunicator extends Thread {
+public class BTCommunicator implements Runnable {
     public static final int MOTOR_A = 0;
     public static final int MOTOR_B = 1;
     public static final int MOTOR_C = 2;
@@ -122,7 +110,9 @@ public class BTCommunicator extends Thread {
         try {        
             createNXTconnection();
         }
-        catch (IOException e) { }
+        catch (IOException e) { 
+        	Log.e(this.getClass().toString(), e.getMessage());
+        }
 
         while (connected) {
             try {
@@ -329,7 +319,7 @@ public class BTCommunicator extends Thread {
         }
     }
 
-    private void doBeep(int frequency, int duration) {
+    public void doBeep(int frequency, int duration) {
         byte[] message = LCPMessage.getBeepMessage(frequency, duration);
         sendMessageAndState(message);
         waitSomeTime(20);
@@ -355,7 +345,7 @@ public class BTCommunicator extends Thread {
         sendMessageAndState(message);
     }
     
-    private void changeMotorSpeed(int motor, int speed) {
+    public void changeMotorSpeed(int motor, int speed) {
         if (speed > 100)
             speed = 100;
 
