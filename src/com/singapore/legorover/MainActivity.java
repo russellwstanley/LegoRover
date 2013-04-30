@@ -1,5 +1,9 @@
-/*INSERT YOUR PACKAGE NAME*/
 package com.singapore.legorover;
+
+/**
+ * Written by russell and the singapore lego rover team
+ * released under the GPL Space Cadet licence
+ */
 
 import java.io.IOException;
 import java.util.Set;
@@ -31,12 +35,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-/**
- * Android SDK Tutorial - Drag and Drop Mobiletuts+
- * 
- * Sue Smith January 2013
- */
 
 public class MainActivity extends Activity implements BTConnectable {
 
@@ -81,10 +79,8 @@ public class MainActivity extends Activity implements BTConnectable {
 						int arg2, int arg3) {
 					value = arg0;
 				}
-
 			};
 		}
-
 	}
 
 	public class MyArrayAdapter extends ArrayAdapter<ListItem> {
@@ -122,23 +118,15 @@ public class MainActivity extends Activity implements BTConnectable {
 	MyArrayAdapter adapter;
 	private LayoutInflater inflater;
 	public static final int REQUEST_ENABLE_BLUETOOTH = 1;
-	public static final String ROVER_BLUETOOTH_NAME = "White";
-
+	public static final String ROVER_BLUETOOTH_NAME = "White"; //TODO make this configurable
 	private BluetoothAdapter bluetoothAdapter;
 	BTCommunicator communicator;
-
 	private Handler btcHandler;
-
 	private int cameraMotor = BTCommunicator.MOTOR_A;
-
 	private int motorLeft = BTCommunicator.MOTOR_B;
-
 	private int motorRight = BTCommunicator.MOTOR_C;
-
 	private int directionLeft = 1;
-
 	private int directionRight = 1;
-	
 	private float angleFudgeFactor = 5.88f;
 
 	public void connect_Click(View view) {
@@ -174,11 +162,10 @@ public class MainActivity extends Activity implements BTConnectable {
 			}
 		}
 		if (macAddress == null) {
-			Toast.makeText(this, "no paired device found", 2);
+			Toast.makeText(this, "no paired lego rover found", 2);
 		} else {
 			startBTCommunicator(macAddress);
 		}
-
 	}
 
 	@Override
@@ -200,17 +187,9 @@ public class MainActivity extends Activity implements BTConnectable {
 					0, 0);
 			communicator = null;
 		}
-
 	}
 
-	/**
-	 * Sends the motor control values to the communcation thread.
-	 * 
-	 * @param left
-	 *            The power of the left motor from 0 to 100.
-	 * @param rigth
-	 *            The power of the right motor from 0 to 100.
-	 */
+	
 	public void updateMotorControl(int left, int right) {
 
 		if (communicator != null) {
@@ -223,18 +202,7 @@ public class MainActivity extends Activity implements BTConnectable {
 		}
 	}
 
-	/**
-	 * Sends the message via the BTCommuncator to the robot.
-	 * 
-	 * @param delay
-	 *            time to wait before sending the message.
-	 * @param message
-	 *            the message type (as defined in BTCommucator)
-	 * @param value1
-	 *            first parameter
-	 * @param value2
-	 *            second parameter
-	 */
+	
 	void sendBTCmessage(int delay, int message, int value1, int value2) {
 		Bundle myBundle = new Bundle();
 		myBundle.putInt("message", message);
@@ -250,16 +218,7 @@ public class MainActivity extends Activity implements BTConnectable {
 			btcHandler.sendMessageDelayed(myMessage, delay);
 	}
 
-	/**
-	 * Sends the message via the BTCommuncator to the robot.
-	 * 
-	 * @param delay
-	 *            time to wait before sending the message.
-	 * @param message
-	 *            the message type (as defined in BTCommucator)
-	 * @param String
-	 *            a String parameter
-	 */
+	
 	void sendBTCmessage(int delay, int message, String name) {
 		Bundle myBundle = new Bundle();
 		myBundle.putInt("message", message);
@@ -331,13 +290,9 @@ public class MainActivity extends Activity implements BTConnectable {
 
 		inflater = (LayoutInflater) this
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
 	}
 
-	/**
-	 * ChoiceTouchListener will handle touch events on draggable views
-	 * 
-	 */
+	
 	private final class ChoiceTouchListener implements OnTouchListener {
 		public boolean onTouch(View view, MotionEvent motionEvent) {
 			if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -362,12 +317,7 @@ public class MainActivity extends Activity implements BTConnectable {
 		b.setText("Click");
 	}
 
-	/**
-	 * DragListener will handle dragged views being dropped on the drop area -
-	 * only the drop action will have processing added to it as we are not -
-	 * amending the default behavior for other parts of the drag process
-	 * 
-	 */
+	
 	private class ChoiceDragListener implements OnDragListener {
 
 		@Override
@@ -407,31 +357,20 @@ public class MainActivity extends Activity implements BTConnectable {
 	}
 
 	private void spinCamera(int speed, int delay) {
-
 		if (communicator != null) {
-
-			// send messages via the handler
 			sendBTCmessage(delay, cameraMotor, speed * directionLeft, 0);
-
 		}
 	}
 
 	private void spinMotorLeft(int speed, int delay) {
-
 		if (communicator != null) {
-
-			// send messages via the handler
 			sendBTCmessage(delay, motorLeft, speed * directionRight, 0);
-
 		}
 	}
 
 	private void spinMotorRight(int speed, int delay) {
 		if (communicator != null) {
-
-			// send messages via the handler
 			sendBTCmessage(delay, motorRight, speed * directionLeft, 0);
-
 		}
 	}
 
@@ -444,7 +383,6 @@ public class MainActivity extends Activity implements BTConnectable {
 		spinMotorRight(power, 0);
 		spinMotorLeft(0, distance);
 		spinMotorRight(0, distance);
-
 	}
 
 	private void rotateCamera(int degrees) {
@@ -455,7 +393,6 @@ public class MainActivity extends Activity implements BTConnectable {
 			spinCamera(-100, 0);
 			spinCamera(0, (int)(degrees * angleFudgeFactor));
 		}
-
 	}
 
 	private void rotate(int degrees) {
@@ -473,8 +410,6 @@ public class MainActivity extends Activity implements BTConnectable {
 	}
 
 	public void sendButton_Click(View view) {
-		// communicator.changeMotorSpeed(1, 50);
-		// TODO
 
 		for (int i = 0; i < dropzone.getCount(); i++) {
 
@@ -484,13 +419,7 @@ public class MainActivity extends Activity implements BTConnectable {
 			Log.e(this.getClass().toString(), "Action: " + action + " Value: "
 					+ item.getValue());
 			if (item.getType() == ListItemType.Move) {
-				forward(Integer.parseInt(item.getValue().toString())); // TODO
-																		// list
-																		// item
-																		// value
-																		// should
-																		// be an
-																		// int
+				forward(Integer.parseInt(item.getValue().toString())); 
 			}
 			if (item.getType() == ListItemType.Rotate) {
 				rotate(Integer.parseInt(item.getValue().toString()));
@@ -498,54 +427,13 @@ public class MainActivity extends Activity implements BTConnectable {
 			if (item.getType() == ListItemType.RotateCamera) {
 				rotateCamera(Integer.parseInt(item.getValue().toString()));
 			}
-
-			// String msg = "hello";
-			// try {
-			// communicator.sendMessage(msg.getBytes());
-			// } catch (IOException e) {
-			// Log.e(this.getClass().toString(), "Unable to send msg to NXT");
-			// }
 		}
-
 		adapter.clear();
 		adapter.notifyDataSetChanged();
-		// spinMotorLeft(50); //turns camera
-		// spinMotorLeft(50); //spins left track
-
-		//rotate(1000);
-		// final ArrayList<ListItem> tempItems = new ArrayList<ListItem>();
-		// for(int i = 0; i < adapter.getCount() ; i++)
-		// {
-		// tempItems.add(adapter.getItem(i));
-		// }
-		// Thread removeThread = new Thread(new Runnable(){
-		//
-		//
-		// @Override
-		// public void run() {
-		// for(ListItem item : tempItems)
-		// {
-		// adapter.remove(item);
-		// adapter.notifyDataSetChanged();
-		// try {
-		// Thread.sleep(500);
-		// } catch (InterruptedException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-		// }
-		//
-		// }
-		//
-		// });
-		// removeThread.start();
-
 	}
 
 	@Override
 	public boolean isPairing() {
-		// TODO Auto-generated method stub
-		return false;
+		return false; //we are never pairing, it is a requirement that the device is already paired by the user
 	}
-
 }
