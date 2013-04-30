@@ -27,7 +27,7 @@ import java.util.UUID;
  * Objects of this class can either be run as standalone thread or controlled
  * by the owners, i.e. calling the send/recive methods by themselves.
  */
-public class BTCommunicator implements Runnable {
+public class BTCommunicator extends Thread {
     public static final int MOTOR_A = 0;
     public static final int MOTOR_B = 1;
     public static final int MOTOR_C = 2;

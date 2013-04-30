@@ -10,6 +10,7 @@
     <string name="option_4">Take Photo</string>
     <string name="buttonText">Send To Rover</string>
     <string name="list_option_button">X</string>
+    <string name="connecting_progressdialog_msg"></string>
     
 
 </resources>
